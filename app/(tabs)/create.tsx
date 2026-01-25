@@ -1,7 +1,7 @@
 import { db } from '@/db/client';
 import { receipts, settings } from '@/db/schema';
 import { eq } from 'drizzle-orm';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useState } from 'react';
 import { Alert, ScrollView } from 'react-native';
 import 'react-native-get-random-values';
@@ -12,6 +12,10 @@ export default function CreateReceipt() {
   const [customer, setCustomer] = useState('');
   const [lineItems, setLineItems] = useState<{id: string, desc: string, qty: string, price: string}[]>([]);
   const [loading, setLoading] = useState(false);
+
+  useFocusEffect(() => {
+    setLineItems([]);
+  });
 
   function addItem() {
     setLineItems([...lineItems, { id: uuidv4(), desc: '', qty: '1', price: '0.00' }]);

@@ -32,6 +32,14 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <MaterialIcons name="settings" size={24} color={color} />
         }} 
       />
+      <Tabs.Screen 
+        name="receipt/[id]" 
+        options={{ 
+          title: 'Receipt Details',
+          headerShown: true,
+          href: null,
+        }} 
+      />
     </Tabs>
   );
 }
