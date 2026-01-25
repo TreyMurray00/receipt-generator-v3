@@ -1,50 +1,78 @@
-# Welcome to your Expo app 👋
+# Receipt V3 🧾
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A powerful, local-first mobile application for creating and managing business receipts. Built with Expo, React Native, and Drizzle ORM.
 
-## Get started
+## ✨ Features
 
-1. Install dependencies
+- **Receipt Management**: Create, view, and track professional receipts for your customers.
+- **Business Profiles**: Configure your business name, address, logo, and digital signature.
+- **Line Items**: Add multiple items with quantities and prices to each receipt.
+- **Local History**: View a dashboard of all past receipts with convenient date filtering.
+- **Electronic Signatures**: Capture business signatures directly within the app.
+- **Offline First**: All data is stored locally using SQLite for maximum performance and privacy.
+- **PDF Generation**: Easily print or share receipts (supported via Expo Print/Sharing).
 
+## 🚀 Tech Stack
+
+- **Framework**: [Expo](https://expo.dev/) (SDK 54)
+- **Frontend**: [React Native](https://reactnative.dev/) with [TypeScript](https://www.typescriptlang.org/)
+- **UI Library**: [RNUILib](https://wix.github.io/react-native-ui-lib/) (Wix React Native UI Lib)
+- **Database (ORM)**: [Drizzle ORM](https://orm.drizzle.team/)
+- **Storage**: [Expo SQLite](https://docs.expo.dev/versions/latest/sdk/sqlite-next/)
+- **Routing**: [Expo Router](https://docs.expo.dev/router/introduction/) (File-based routing)
+- **Icons**: [@expo/vector-icons](https://docs.expo.dev/guides/icons/)
+
+## 🛠️ Getting Started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (LTS recommended)
+- [npm](https://www.npmjs.com/) or [bun](https://bun.sh/)
+- [Expo Go](https://expo.dev/go) app on your mobile device (to test on physical hardware)
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd receipt-v3
+   ```
+
+2. Install dependencies:
    ```bash
    npm install
    ```
 
-2. Start the app
-
+3. Run the development server:
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+### Database Migrations
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+This project uses Drizzle for database management. To push schema changes to the local SQLite database:
 
 ```bash
-npm run reset-project
+npx drizzle-kit push
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## 📁 Project Structure
 
-## Learn more
+- `app/`: Contains the application routes (Expo Router).
+- `components/`: Reusable UI components.
+- `db/`: Database schema definitions (`schema.ts`) and client configuration.
+- `constants/`: Global constants and theme definitions.
+- `hooks/`: Custom React hooks.
+- `assets/`: Static assets like images and fonts.
+- `drizzle/`: Database migration files.
 
-To learn more about developing your project with Expo, look at the following resources:
+## 📱 Development
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- **Android**: `npm run android`
+- **iOS**: `npm run ios`
+- **Web**: `npm run web`
 
-## Join the community
+## 📄 License
 
-Join our community of developers creating universal apps.
+This project is open source and intended for internal use.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
