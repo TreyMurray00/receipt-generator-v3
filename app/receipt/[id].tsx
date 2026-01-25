@@ -1,13 +1,13 @@
+import { db } from '@/db/client';
+import { receipts } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Print from 'expo-print';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import * as Sharing from 'expo-sharing';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView } from 'react-native';
 import { Button, Image, Text, View } from 'react-native-ui-lib';
-import { db } from '../../db/client';
-import { receipts } from '../../db/schema';
 
 export default function ReceiptDetails() {
   const { id } = useLocalSearchParams();
@@ -129,6 +129,30 @@ export default function ReceiptDetails() {
     }
   }
 
+  async function handleDelete() {
+    Alert.alert(
+      "Delete Receipt",
+      "Are you sure you want to delete this receipt? This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Delete", 
+          style: "destructive", 
+          onPress: async () => {
+             try {
+               await db.delete(receipts).where(eq(receipts.id, id as string));
+               Alert.alert("Success", "Receipt deleted");
+               router.back();
+             } catch (e) {
+               console.error(e);
+               Alert.alert("Error", "Failed to delete receipt");
+             }
+          }
+        }
+      ]
+    );
+  }
+
   if (loading) return <ActivityIndicator />;
   if (!receipt) return <Text>Receipt not found</Text>;
 
@@ -173,7 +197,8 @@ export default function ReceiptDetails() {
         )}
       </View>
 
-      <Button label="Export PDF" onPress={generatePdf} size={Button.sizes.large} />
+      <Button label="Export PDF" onPress={generatePdf} size={Button.sizes.large} marginB-20 />
+      <Button label="Delete Receipt" onPress={handleDelete} size={Button.sizes.large} outline color="red" />
     </ScrollView>
   );
 }

@@ -9,7 +9,7 @@ import { expoDb } from '../db/client';
 const MIGRATION_SQL = `
 CREATE TABLE IF NOT EXISTS receipts (
     id text PRIMARY KEY NOT NULL,
-    receipt_number integer,
+    receipt_number text,
     created_at integer NOT NULL,
     customer_name text,
     items text NOT NULL,
@@ -54,9 +54,7 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
-          <Stack.Screen name="index" options={{ title: 'Receipts' }} />
-          <Stack.Screen name="create" options={{ title: 'New Receipt' }} />
-          <Stack.Screen name="settings" options={{ title: 'Settings' }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="receipt/[id]" options={{ title: 'Receipt Details' }} />
         </Stack>
         <StatusBar style="auto" />

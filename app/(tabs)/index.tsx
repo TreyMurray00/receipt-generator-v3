@@ -1,11 +1,11 @@
+import { db } from '@/db/client';
+import { receipts } from '@/db/schema';
 import { desc } from 'drizzle-orm';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, FloatingButton, Text, View } from 'react-native-ui-lib';
-import { db } from '../db/client';
-import { receipts } from '../db/schema';
+import { Button, Text, View } from 'react-native-ui-lib';
 
 export default function Dashboard() {
   const [data, setData] = useState<typeof receipts.$inferSelect[]>([]);
@@ -78,22 +78,6 @@ export default function Dashboard() {
             contentContainerStyle={{ paddingBottom: 80 }}
           />
         )}
-        
-        <FloatingButton
-          visible={true}
-          button={{
-            label: "New Receipt",
-            onPress: () => router.push('/create')
-          }}
-          bottomMargin={20}
-        />
-        
-        <Button 
-            label="Settings" 
-            link 
-            onPress={() => router.push('/settings')} 
-            style={{ position: 'absolute', top: 10, right: 10 }}
-        />
       </View>
     </SafeAreaView>
   );

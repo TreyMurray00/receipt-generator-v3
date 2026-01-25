@@ -1,12 +1,12 @@
-import { desc, eq } from 'drizzle-orm';
+import { db } from '@/db/client';
+import { receipts, settings } from '@/db/schema';
+import { eq } from 'drizzle-orm';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Alert, ScrollView } from 'react-native';
 import 'react-native-get-random-values';
 import { Button, Text, TextField, TouchableOpacity, View } from 'react-native-ui-lib';
 import { v4 as uuidv4 } from 'uuid';
-import { db } from '../db/client';
-import { receipts, settings } from '../db/schema';
 
 export default function CreateReceipt() {
   const [customer, setCustomer] = useState('');
@@ -38,14 +38,14 @@ export default function CreateReceipt() {
       const settingsRes = await db.select().from(settings).where(eq(settings.id, 1));
       const currentSettings = settingsRes[0] || {};
       
-      const lastReceipt = await db.select().from(receipts).orderBy(desc(receipts.receiptNumber)).limit(1);
-      const nextNum = (lastReceipt[0]?.receiptNumber || 1000) + 1;
-
       const newId = uuidv4();
+      const receiptNum = uuidv4();
+
+
       
       await db.insert(receipts).values({
         id: newId,
-        receiptNumber: nextNum,
+        receiptNumber: receiptNum,
         createdAt: Date.now(),
         customerName: customer,
         items: JSON.stringify(lineItems),

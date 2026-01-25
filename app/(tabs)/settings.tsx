@@ -1,13 +1,15 @@
-import { eq } from 'drizzle-orm';
+import { db } from '@/db/client';
+import { receipts, settings } from '@/db/schema';
+import { desc, eq } from 'drizzle-orm';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as ImagePicker from 'expo-image-picker';
+import * as Print from 'expo-print';
 import { router } from 'expo-router';
+import * as Sharing from 'expo-sharing';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, ScrollView } from 'react-native';
 import SignatureScreen from 'react-native-signature-canvas';
 import { Button, Image, Modal, Text, TextField, TouchableOpacity, View } from 'react-native-ui-lib';
-import { db } from '../db/client';
-import { settings } from '../db/schema';
 
 export default function SettingsScreen() {
   const [name, setName] = useState('');
@@ -104,6 +106,92 @@ export default function SettingsScreen() {
     }
   }
 
+  async function exportPdf() {
+    setLoading(true);
+    try {
+      const data = await db.select().from(receipts).orderBy(desc(receipts.createdAt));
+      if (!data || data.length === 0) {
+        Alert.alert("No Data", "There are no receipts to export.");
+        return;
+      }
+
+      const totalAmount = data.reduce((sum, item) => sum + item.totalAmount, 0);
+      const html = `
+        <html>
+          <head>
+            <style>
+              body { font-family: 'Helvetica'; padding: 20px; }
+              table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+              th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+              th { background-color: #f2f2f2; }
+            </style>
+          </head>
+          <body>
+            <h1>Receipts Report</h1>
+            <p>Generated: ${new Date().toLocaleString()}</p>
+            <p>Total Receipts: ${data.length}</p>
+            <p>Total Amount: $${totalAmount.toFixed(2)}</p>
+            
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Receipt #</th>
+                  <th>Customer</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${data.map(item => `
+                  <tr>
+                    <td>${new Date(item.createdAt).toLocaleDateString()}</td>
+                    <td>${item.receiptNumber}</td>
+                    <td>${item.customerName || '-'}</td>
+                    <td>$${item.totalAmount.toFixed(2)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </body>
+        </html>
+      `;
+
+      const { uri } = await Print.printToFileAsync({ html });
+      await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
+    } catch (e) {
+      console.error(e);
+      Alert.alert("Error", "Failed to export PDF");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function exportCsv() {
+    setLoading(true);
+    try {
+      const data = await db.select().from(receipts).orderBy(desc(receipts.createdAt));
+      if (!data || data.length === 0) {
+        Alert.alert("No Data", "There are no receipts to export.");
+        return;
+      }
+
+      let csv = 'Date,Time,Receipt Number,Customer Name,Total Amount\n';
+      data.forEach(item => {
+        const d = new Date(item.createdAt);
+        csv += `"${d.toLocaleDateString()}","${d.toLocaleTimeString()}","${item.receiptNumber}","${item.customerName || ''}","${item.totalAmount.toFixed(2)}"\n`;
+      });
+
+      const path = FileSystem.documentDirectory + 'receipts_export.csv';
+      await FileSystem.writeAsStringAsync(path, csv, { encoding: FileSystem.EncodingType.UTF8 });
+      await Sharing.shareAsync(path, { UTI: '.csv', mimeType: 'text/csv' });
+    } catch (e) {
+      console.error(e);
+      Alert.alert("Error", "Failed to export CSV");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <View flex>
         <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 50 }} scrollEnabled={scrollEnabled}>
@@ -161,6 +249,12 @@ export default function SettingsScreen() {
             ) : (
                 <Text grey40>No signature selected</Text>
             )}
+        </View>
+
+        <Text text60 marginB-10>Export Data</Text>
+        <View row marginB-20>
+             <Button label="Export PDF Report" onPress={exportPdf} outline size={Button.sizes.small} marginR-10 />
+             <Button label="Export CSV (Excel)" onPress={exportCsv} outline size={Button.sizes.small} />
         </View>
         
         <Button 

@@ -10,7 +10,7 @@ export const settings = sqliteTable('settings', {
 
 export const receipts = sqliteTable('receipts', {
     id: text('id').primaryKey(), // UUID
-    receiptNumber: integer('receipt_number').unique(),
+    receiptNumber: text('receipt_number').unique(),
     createdAt: integer('created_at').notNull(),
     customerName: text('customer_name'),
     items: text('items').notNull(), // JSON
