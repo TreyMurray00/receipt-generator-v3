@@ -1,17 +1,32 @@
 import { desc } from 'drizzle-orm';
-import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
-import { router } from 'expo-router';
-import { FlatList } from 'react-native';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { ActivityIndicator, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, FloatingButton, Text, View } from 'react-native-ui-lib';
 import { db } from '../db/client';
 import { receipts } from '../db/schema';
 
 export default function Dashboard() {
-  // Live query to update list automatically
-  const { data } = useLiveQuery(
-    db.select().from(receipts).orderBy(desc(receipts.createdAt))
+  const [data, setData] = useState<typeof receipts.$inferSelect[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchReceipts();
+    }, [])
   );
+
+  async function fetchReceipts() {
+    try {
+      const result = await db.select().from(receipts).orderBy(desc(receipts.createdAt));
+      setData(result);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const renderItem = ({ item }: { item: typeof receipts.$inferSelect }) => (
     <View 
@@ -43,7 +58,9 @@ export default function Dashboard() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#f2f2f2' }}>
       <View flex padding-s4>
-        {(!data || data.length === 0) ? (
+        {loading ? (
+           <View flex center><ActivityIndicator size="large" /></View>
+        ) : (!data || data.length === 0) ? (
           <View flex center>
             <Text text60 grey30>No receipts yet</Text>
             <Button 

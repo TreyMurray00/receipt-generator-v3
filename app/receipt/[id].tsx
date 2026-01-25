@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as Print from 'expo-print';
 import { useLocalSearchParams } from 'expo-router';
 import * as Sharing from 'expo-sharing';
@@ -51,7 +51,7 @@ export default function ReceiptDetails() {
       if (snapshot.signatureUri) {
           try {
              const base64 = await FileSystem.readAsStringAsync(snapshot.signatureUri, { encoding: FileSystem.EncodingType.Base64 });
-             signatureHtml = `<img src="data:image/jpeg;base64,${base64}" style="width: 150px; height: auto;" />`;
+             signatureHtml = `<img src="data:image/png;base64,${base64}" style="width: 150px; height: auto;" />`;
           } catch (e) { console.warn("Sig load fail", e); }
       }
 
