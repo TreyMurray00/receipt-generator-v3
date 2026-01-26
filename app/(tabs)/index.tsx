@@ -1,11 +1,12 @@
 import { db } from '@/db/client';
 import { receipts } from '@/db/schema';
+import { useThemeColor } from '@/hooks/use-theme-color';
 import { desc } from 'drizzle-orm';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, DateTimePicker, Text, View } from 'react-native-ui-lib';
+import { Button, DateTimePicker, Text, Colors as UIColors, View } from 'react-native-ui-lib';
 
 export default function Dashboard() {
   const [data, setData] = useState<typeof receipts.$inferSelect[]>([]);
@@ -37,6 +38,12 @@ export default function Dashboard() {
            itemDate.getDate() === filterDate.getDate();
   });
 
+  const backgroundColor = useThemeColor({}, 'background');
+  const textColor = useThemeColor({}, 'text');
+  const cardColor = useThemeColor({ light: '#f9f9f9', dark: '#1a1a1a' }, 'background');
+  const secondaryTextColor = useThemeColor({ light: UIColors.grey10, dark: UIColors.grey30 }, 'text');
+  const tertiaryTextColor = useThemeColor({ light: UIColors.grey30, dark: UIColors.grey50 }, 'text');
+
   const renderItem = ({ item }: { item: typeof receipts.$inferSelect }) => {
     const displayId = item.receiptNumber && item.receiptNumber.length > 8 
       ? `#${item.receiptNumber.substring(0, 8)}...` 
@@ -44,16 +51,16 @@ export default function Dashboard() {
 
     return (
       <View 
-        bg-white 
+        backgroundColor={cardColor} 
         padding-s4 
         marginB-s2 
         style={{ borderRadius: 8, elevation: 2 }}
       >
         <View row spread centerV>
           <View flex>
-            <Text text60 numberOfLines={1}>{displayId}</Text>
-            <Text text70 grey10 numberOfLines={1}>{item.customerName}</Text>
-            <Text text80 grey30>{new Date(item.createdAt).toLocaleDateString()}</Text>
+            <Text text60 numberOfLines={1} color={textColor}>{displayId}</Text>
+            <Text text70 grey10 numberOfLines={1} color={secondaryTextColor}>{item.customerName}</Text>
+            <Text text80 grey30 color={tertiaryTextColor}>{new Date(item.createdAt).toLocaleDateString()}</Text>
           </View>
           <View right marginL-s4 style={{ width: 100 }}>
             <Text text60 primary style={{ fontWeight: 'bold' }}>${item.totalAmount.toFixed(2)}</Text>
@@ -61,6 +68,7 @@ export default function Dashboard() {
               label="View" 
               size={Button.sizes.xSmall} 
               outline 
+              outlineColor={UIColors.primary}
               onPress={() => router.push(`/receipt/${item.id}`)} 
               marginT-s2
               style={{ width: 80 }}
@@ -72,7 +80,7 @@ export default function Dashboard() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#f2f2f2' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor }}>
       <View flex padding-s4>
         {loading ? (
            <View flex center><ActivityIndicator size="large" /></View>
@@ -88,7 +96,7 @@ export default function Dashboard() {
           </View>
         ) : (
           <>
-            <View row spread centerV marginB-s4 bg-white padding-s2 style={{ borderRadius: 8 }}>
+            <View row spread centerV marginB-s4 backgroundColor={cardColor} padding-s2 style={{ borderRadius: 8 }}>
                 <View flex>
                     <DateTimePicker
                         placeholder="Filter by Date"

@@ -1,5 +1,6 @@
 import { db } from '@/db/client';
 import { receipts } from '@/db/schema';
+import { useThemeColor } from '@/hooks/use-theme-color';
 import { eq } from 'drizzle-orm';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Print from 'expo-print';
@@ -7,7 +8,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import * as Sharing from 'expo-sharing';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView } from 'react-native';
-import { Button, Image, Text, View } from 'react-native-ui-lib';
+import { Button, Image, Text, Colors as UIColors, View } from 'react-native-ui-lib';
 
 export default function ReceiptDetails() {
   const { id } = useLocalSearchParams();
@@ -153,41 +154,48 @@ export default function ReceiptDetails() {
     );
   }
 
-  if (loading) return <ActivityIndicator />;
-  if (!receipt) return <Text>Receipt not found</Text>;
+  const backgroundColor = useThemeColor({}, 'background');
+  const textColor = useThemeColor({}, 'text');
+  const cardColor = useThemeColor({ light: '#FFFFFF', dark: '#1a1a1a' }, 'background');
+  const borderColor = useThemeColor({ light: UIColors.grey50, dark: '#333' }, 'background');
+  const mutedTextColor = useThemeColor({ light: UIColors.grey40, dark: UIColors.grey30 }, 'text');
+  const secondaryBgColor = useThemeColor({ light: UIColors.grey70, dark: '#222' }, 'background');
+
+  if (loading) return <View flex center backgroundColor={backgroundColor}><ActivityIndicator size="large" /></View>;
+  if (!receipt) return <View flex center backgroundColor={backgroundColor}><Text color={textColor}>Receipt not found</Text></View>;
 
   const snapshot = JSON.parse(receipt.businessSnapshot || '{}');
   const items = JSON.parse(receipt.items);
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 20 }}>
+    <ScrollView contentContainerStyle={{ padding: 20 }} style={{ backgroundColor }}>
       {/* Visual Preview */}
-      <View bg-white padding-20 style={{ borderRadius: 8, elevation: 2, marginBottom: 20 }}>
+      <View backgroundColor={cardColor} padding-20 style={{ borderRadius: 8, elevation: 2, marginBottom: 20 }}>
         <View row spread marginB-20>
            {snapshot.logoUri && <Image source={{ uri: snapshot.logoUri }} style={{ width: 60, height: 60 }} resizeMode="contain"/>}
            <View right>
-              <Text text60>{snapshot.businessName}</Text>
-              <Text grey40>{snapshot.businessAddress}</Text>
+              <Text text60 color={textColor}>{snapshot.businessName}</Text>
+              <Text grey40 color={mutedTextColor}>{snapshot.businessAddress}</Text>
            </View>
         </View>
         
         <View marginB-20>
-          <Text text60>Receipt #{receipt.receiptNumber}</Text>
-          <Text grey40>{new Date(receipt.createdAt).toDateString()}</Text>
+          <Text text60 color={textColor}>Receipt #{receipt.receiptNumber}</Text>
+          <Text grey40 color={mutedTextColor}>{new Date(receipt.createdAt).toDateString()}</Text>
         </View>
 
-        <Text text70 marginB-10>Bill To: {receipt.customerName}</Text>
+        <Text text70 marginB-10 color={textColor}>Bill To: {receipt.customerName}</Text>
 
-        <View bg-grey70 padding-10 marginB-10 style={{ borderRadius: 4 }}>
+        <View backgroundColor={secondaryBgColor} padding-10 marginB-10 style={{ borderRadius: 4 }}>
            {items.map((item: any, i: number) => (
              <View key={i} row spread marginB-5>
-               <Text flex-2>{item.desc} (x{item.qty})</Text>
-               <Text>${(parseFloat(item.qty) * parseFloat(item.price)).toFixed(2)}</Text>
+               <Text flex-2 color={textColor}>{item.desc} (x{item.qty})</Text>
+               <Text color={textColor}>${(parseFloat(item.qty) * parseFloat(item.price)).toFixed(2)}</Text>
              </View>
            ))}
-           <View height={1} bg-grey50 marginV-10 />
+           <View height={1} backgroundColor={borderColor} marginV-10 />
            <View row spread>
-             <Text text60>Total</Text>
+             <Text text60 color={textColor}>Total</Text>
              <Text text60 primary>${receipt.totalAmount.toFixed(2)}</Text>
            </View>
         </View>
@@ -198,7 +206,7 @@ export default function ReceiptDetails() {
       </View>
 
       <Button label="Export PDF" onPress={generatePdf} size={Button.sizes.large} marginB-20 />
-      <Button label="Delete Receipt" onPress={handleDelete} size={Button.sizes.large} outline color="red" />
+      <Button label="Delete Receipt" onPress={handleDelete} size={Button.sizes.large} outline outlineColor="red" color="red" />
     </ScrollView>
   );
 }
