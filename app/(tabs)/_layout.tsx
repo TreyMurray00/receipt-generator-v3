@@ -24,11 +24,19 @@ export default function TabLayout() {
         }} 
       />
       <Tabs.Screen 
-        name="settings" 
+        name="settings"
         options={{ 
           title: 'Settings', 
           headerShown: true,
           tabBarIcon: ({ color }) => <MaterialIcons name="settings" size={24} color={color} />
+        }} 
+      />
+      <Tabs.Screen 
+        name="reports" 
+        options={{ 
+          title: 'Reports', 
+          headerShown: true,
+          tabBarIcon: ({ color }) => <MaterialIcons name="bar-chart" size={24} color={color} />
         }} 
       />
       <Tabs.Screen 

@@ -206,6 +206,7 @@ export default function ReceiptDetails() {
       </View>
 
       <Button label="Export PDF" onPress={generatePdf} size={Button.sizes.large} marginB-20 />
+      <Button label="Home" onPress={() => router.replace('/(tabs)')} size={Button.sizes.large} outline outlineColor={UIColors.primary} marginB-20 />
       <Button label="Delete Receipt" onPress={handleDelete} size={Button.sizes.large} outline outlineColor="red" color="red" />
     </ScrollView>
   );
