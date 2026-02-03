@@ -12,7 +12,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.treymurray00.ReceiptGenerator",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSPhotoLibraryUsageDescription": "Allow accessing your photo library to select a business logo or signature."
       }
     },
     "android": {
@@ -24,7 +25,13 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.treymurray00.ReceiptGenerator"
+      "package": "com.treymurray00.ReceiptGenerator",
+      "permissions": [
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_MEDIA_IMAGES",
+        "INTERNET"
+      ]
     },
     "web": {
       "output": "static",
