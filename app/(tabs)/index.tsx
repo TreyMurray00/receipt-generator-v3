@@ -63,7 +63,7 @@ export default function Dashboard() {
             <Text text80 grey30 color={tertiaryTextColor}>{new Date(item.createdAt).toLocaleDateString()}</Text>
           </View>
           <View right marginL-s4 style={{ width: 100 }}>
-            <Text text60 primary style={{ fontWeight: 'bold' }}>${item.totalAmount.toFixed(2)}</Text>
+            <Text text60 style={{ fontWeight: 'bold' }} color={textColor}>${item.totalAmount.toFixed(2)}</Text>
             <Button 
               label="View" 
               size={Button.sizes.xSmall} 

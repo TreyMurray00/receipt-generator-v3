@@ -1,13 +1,12 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { useColorScheme } from 'react-native';
-import { Colors } from 'react-native-ui-lib';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <Tabs screenOptions={{ tabBarActiveTintColor: Colors.primary }}>
+    <Tabs screenOptions={{ tabBarActiveTintColor: '#5a48f5' }}>
       <Tabs.Screen 
         name="index" 
         options={{ 

@@ -17,6 +17,7 @@ export default function CreateReceipt() {
   useFocusEffect(
     useCallback(() => {
       setLineItems([]);
+      setCustomer('');
     }, [])
   );
 
@@ -39,6 +40,12 @@ export default function CreateReceipt() {
   async function save() {
     if (!customer) return Alert.alert("Error", "Customer name is required");
     if (lineItems.length === 0) return Alert.alert("Error", "Add at least one item");
+
+    for (const item of lineItems) {
+      if (!item.desc.trim()) {
+        return Alert.alert("Error", "All items must have a description");
+      }
+    }
 
     setLoading(true);
     try {

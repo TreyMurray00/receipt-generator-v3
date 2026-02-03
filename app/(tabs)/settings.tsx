@@ -296,7 +296,9 @@ export default function SettingsScreen() {
                         ref={signatureRef}
                         onOK={handleSignatureOK}
                         webStyle={`.m-signature-pad--footer {display: none; margin: 0px;} .m-signature-pad { border: none; box-shadow: none; }`} 
-                        backgroundColor={backgroundColor}
+                        backgroundColor="#ffffff"
+                        penColor="#000000"
+                        style={{ flex: 1, width: '100%', height: '100%' }}
                     />
                 </View>
                 <View row center>

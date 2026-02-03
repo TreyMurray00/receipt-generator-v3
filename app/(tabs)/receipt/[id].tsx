@@ -196,7 +196,7 @@ export default function ReceiptDetails() {
            <View height={1} backgroundColor={borderColor} marginV-10 />
            <View row spread>
              <Text text60 color={textColor}>Total</Text>
-             <Text text60 primary>${receipt.totalAmount.toFixed(2)}</Text>
+             <Text text60 color={textColor}>${receipt.totalAmount.toFixed(2)}</Text>
            </View>
         </View>
         
