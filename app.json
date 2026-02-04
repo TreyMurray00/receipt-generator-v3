@@ -31,6 +31,9 @@
         "WRITE_EXTERNAL_STORAGE",
         "READ_MEDIA_IMAGES",
         "INTERNET"
+      ],
+      "blockedPermissions": [
+        "android.permission.CAMERA"
       ]
     },
     "web": {
