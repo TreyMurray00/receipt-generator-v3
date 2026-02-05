@@ -7,7 +7,7 @@ import * as Print from 'expo-print';
 import { useFocusEffect } from 'expo-router';
 import * as Sharing from 'expo-sharing';
 import { useCallback, useState } from 'react';
-import { Alert, ScrollView } from 'react-native';
+import { Alert, ScrollView, useWindowDimensions } from 'react-native';
 import { Button, SegmentedControl, Text, Colors as UIColors, View } from 'react-native-ui-lib';
 
 export default function ReportsScreen() {
@@ -174,18 +174,21 @@ export default function ReportsScreen() {
   const secondaryTextColor = useThemeColor({ light: UIColors.grey40, dark: UIColors.grey30 }, 'text');
   const highlightColor = '#5a48f5';
 
+  const { width } = useWindowDimensions();
+  const isLargeScreen = width >= 768;
+
   return (
     <View flex backgroundColor={backgroundColor}>
       <ScrollView contentContainerStyle={{ padding: 20 }}>
         <Text text50 marginB-20 color={textColor}>Overview</Text>
         
         {/* Stats Cards */}
-        <View row spread marginB-20>
-            <View flex-1 backgroundColor={cardColor} padding-10 style={{ borderRadius: 8, marginRight: 10 }}>
+        <View row={isLargeScreen} spread={isLargeScreen} marginB-20>
+            <View flex-1 backgroundColor={cardColor} padding-10 style={{ borderRadius: 8, marginRight: isLargeScreen ? 10 : 0, marginBottom: isLargeScreen ? 0 : 10 }}>
                 <Text text90 color={secondaryTextColor}>TODAY</Text>
                 <Text text60 color={textColor}>${todayTotal.toFixed(2)}</Text>
             </View>
-            <View flex-1 backgroundColor={cardColor} padding-10 style={{ borderRadius: 8, marginRight: 10 }}>
+            <View flex-1 backgroundColor={cardColor} padding-10 style={{ borderRadius: 8, marginRight: isLargeScreen ? 10 : 0, marginBottom: isLargeScreen ? 0 : 10 }}>
                 <Text text90 color={secondaryTextColor}>WEEK</Text>
                 <Text text60 color={textColor}>${weekTotal.toFixed(2)}</Text>
             </View>
