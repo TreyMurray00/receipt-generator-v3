@@ -1,14 +1,20 @@
 import { db } from '@/db/client';
 import { settings } from '@/db/schema';
 import { useThemeColor } from '@/hooks/use-theme-color';
+import { BackupManager } from '@/services/backupManager';
 import { eq } from 'drizzle-orm';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
 import { useEffect, useRef, useState } from 'react';
-import { Alert, ScrollView } from 'react-native';
+import { Alert, Platform, ScrollView } from 'react-native';
 import SignatureScreen from 'react-native-signature-canvas';
 import { Button, Image, Modal, Text, TextField, TouchableOpacity, Colors as UIColors, View } from 'react-native-ui-lib';
+
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function SettingsScreen() {
   const [name, setName] = useState('');
@@ -17,6 +23,8 @@ export default function SettingsScreen() {
   const [signature, setSignature] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [scrollEnabled, setScrollEnabled] = useState(true);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [userInfo, setUserInfo] = useState<any>(null);
   
   // Custom Signature Modal state
   const [signatureModalVisible, setSignatureModalVisible] = useState(false);
@@ -24,7 +32,118 @@ export default function SettingsScreen() {
 
   useEffect(() => {
     loadSettings();
+    configureGoogleSignIn();
   }, []);
+
+  const configureGoogleSignIn = () => {
+      GoogleSignin.configure({
+          scopes: ['https://www.googleapis.com/auth/drive.file'],
+          webClientId: process.env.EXPO_PUBLIC_CLIENT_ID,
+          offlineAccess: true,
+      });
+      console.log("Google Sign-In configured");
+      
+      // Check if already signed in
+      getCurrentUser();
+  };
+
+  const getCurrentUser = async () => {
+      try {
+          const hasPlay = await GoogleSignin.hasPlayServices();
+          if (hasPlay) {
+              const currentUser = await GoogleSignin.getCurrentUser();
+              if (currentUser) {
+                  setUserInfo(currentUser);
+                  const tokens = await GoogleSignin.getTokens();
+                  setAccessToken(tokens.accessToken);
+              }
+          }
+      } catch (error) {
+          console.log("Create user error/ Not signed in", error);
+      }
+  };
+
+  const signIn = async () => {
+      try {
+          await GoogleSignin.hasPlayServices();
+          const pUserInfo = await GoogleSignin.signIn();
+          setUserInfo(pUserInfo);
+          
+          const tokens = await GoogleSignin.getTokens();
+          setAccessToken(tokens.accessToken);
+          console.log("Signed in with access token");
+      } catch (error: any) {
+          if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+              console.log("User cancelled the login flow");
+          } else if (error.code === statusCodes.IN_PROGRESS) {
+              console.log("Sign in is in progress already");
+          } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+              console.log("Play services not available or outdated");
+              Alert.alert("Error", "Google Play Services are required for sign in.");
+          } else {
+              console.log("Some other error happened", error);
+              Alert.alert("Error", "Sign in failed: " + error.message);
+          }
+      }
+  };
+  
+  const signOut = async () => {
+      try {
+          await GoogleSignin.signOut();
+          setUserInfo(null);
+          setAccessToken(null);
+      } catch (error) {
+          console.error(error);
+      }
+  };
+
+  async function handleBackup() {
+    if (!accessToken) {
+        Alert.alert("Sign In Required", "Please sign in with Google Drive first.");
+        return;
+    }
+    setLoading(true);
+    try {
+        await BackupManager.performBackup(accessToken);
+        Alert.alert("Success", "Backup uploaded successfully!");
+    } catch (e: any) {
+        Alert.alert("Error", "Backup failed: " + e.message);
+        console.error(e);
+    } finally {
+        setLoading(false);
+    }
+  }
+
+  async function handleRestore() {
+      if (!accessToken) {
+          Alert.alert("Sign In Required", "Please sign in with Google Drive first.");
+          return;
+      }
+      
+      Alert.alert(
+          "Confirm Restore",
+          "This will overwrite your current data with the backup found on Drive. This action cannot be undone. Are you sure?",
+          [
+              { text: "Cancel", style: "cancel" },
+              { 
+                  text: "Restore", 
+                  style: "destructive", 
+                  onPress: async () => {
+                      setLoading(true);
+                      try {
+                          await BackupManager.performRestore(accessToken);
+                          Alert.alert("Success", "Data restored! Please restart the app to see changes.");
+                      } catch (e: any) {
+                          Alert.alert("Error", "Restore failed: " + e.message);
+                          console.error(e);
+                      } finally {
+                          setLoading(false);
+                      }
+                  }
+              }
+          ]
+      );
+  }
 
   async function loadSettings() {
     try {
@@ -187,6 +306,47 @@ export default function SettingsScreen() {
                 <Text grey40 color={placeholderTextColor}>No signature selected</Text>
             )}
         </View>
+
+        {Platform.OS === 'android' && (
+          <>
+            <Text text60 marginB-10 color={textColor}>Data Backup (Google Drive)</Text>
+            <View marginB-20 backgroundColor={cardColor} padding-15 style={{ borderRadius: 8 }}>
+                {!accessToken ? (
+                    <Button 
+                        label="Sign in with Google" 
+                        onPress={signIn}
+                        backgroundColor="#4285F4"
+                        marginB-10
+                    />
+                ) : (
+
+                    <View>
+                        <View row spread marginB-10>
+                            <Text text80 color={textColor} style={{alignSelf: 'center'}}>✓ Signed in as {userInfo?.user?.name || 'User'}</Text>
+                            <Button label="Sign Out" size={Button.sizes.xSmall} outline onPress={signOut} />
+                        </View>
+                        <View row spread>
+                            <Button 
+                                label="Backup Data" 
+                                onPress={handleBackup} 
+                                backgroundColor={UIColors.green30}
+                                style={{ flex: 1, marginRight: 5 }} 
+                            />
+                            <Button 
+                                label="Restore Data" 
+                                onPress={handleRestore} 
+                                backgroundColor={UIColors.orange30}
+                                style={{ flex: 1, marginLeft: 5 }} 
+                            />
+                        </View>
+                    </View>
+                )}
+                <Text text90 color={placeholderTextColor} marginT-10>
+                    Note: You must restart the app after restoring.
+                </Text>
+            </View>
+          </>
+        )}
 
 
         
