@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.treymurray00.ReceiptGenerator",
+      "bundleIdentifier": "com.codenimbus.ReceiptGenerator",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSPhotoLibraryUsageDescription": "Allow accessing your photo library to select a business logo or signature."
@@ -25,7 +25,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.treymurray00.ReceiptGenerator",
+      "package": "com.codenimbus.ReceiptGenerator",
       "permissions": [
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE",
@@ -102,8 +102,7 @@
         }
       ],
       "@react-native-community/datetimepicker",
-      "expo-web-browser",
-      "@react-native-google-signin/google-signin"
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
