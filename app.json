@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Receipt Generator",
-    "slug": "Receipt-Generator",
+    "slug": "receipt-generator-v3",
     "version": "3.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/app_logo.png",
@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.treymurray00.ReceiptGenerator",
+      "bundleIdentifier": "com.codenimbus.ReceiptGenerator",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSPhotoLibraryUsageDescription": "Allow accessing your photo library to select a business logo or signature."
@@ -112,8 +112,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "2fe29688-e9c2-44c1-ba15-59d1ce2bf249"
+        "projectId": "37e9a029-b84f-4c9e-9e87-69f22c8dc430"
       }
-    }
+    },
+    "owner": "codenimbus"
   }
 }

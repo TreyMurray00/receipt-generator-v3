@@ -12,7 +12,7 @@ import { Alert, Platform, ScrollView } from 'react-native';
 import SignatureScreen from 'react-native-signature-canvas';
 import { Button, Image, Modal, Text, TextField, TouchableOpacity, Colors as UIColors, View } from 'react-native-ui-lib';
 
-import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+import { GoogleSignin, GoogleSigninButton, statusCodes, User } from '@react-native-google-signin/google-signin';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -24,7 +24,8 @@ export default function SettingsScreen() {
   const [loading, setLoading] = useState(false);
   const [scrollEnabled, setScrollEnabled] = useState(true);
   const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [userInfo, setUserInfo] = useState<any>(null);
+  const [userInfo, setUserInfo] = useState<null | User>(null);
+
   
   // Custom Signature Modal state
   const [signatureModalVisible, setSignatureModalVisible] = useState(false);
@@ -63,11 +64,21 @@ export default function SettingsScreen() {
       }
   };
 
+    const getFreshAccessToken = async () => {
+        await GoogleSignin.clearCachedAccessToken(accessToken!);
+        const tokens = await GoogleSignin.getTokens();
+        return tokens.accessToken;
+    };
+
   const signIn = async () => {
       try {
-          await GoogleSignin.hasPlayServices();
           const pUserInfo = await GoogleSignin.signIn();
-          setUserInfo(pUserInfo);
+          if (pUserInfo.type === "success"){
+            setUserInfo(pUserInfo.data);
+          }
+          else{
+            throw Error("Sigin Failed")
+          }
           
           const tokens = await GoogleSignin.getTokens();
           setAccessToken(tokens.accessToken);
@@ -98,6 +109,7 @@ export default function SettingsScreen() {
   };
 
   async function handleBackup() {
+    setAccessToken(await getFreshAccessToken())
     if (!accessToken) {
         Alert.alert("Sign In Required", "Please sign in with Google Drive first.");
         return;
@@ -115,6 +127,7 @@ export default function SettingsScreen() {
   }
 
   async function handleRestore() {
+    setAccessToken(await getFreshAccessToken())
       if (!accessToken) {
           Alert.alert("Sign In Required", "Please sign in with Google Drive first.");
           return;
@@ -312,12 +325,7 @@ export default function SettingsScreen() {
             <Text text60 marginB-10 color={textColor}>Data Backup (Google Drive)</Text>
             <View marginB-20 backgroundColor={cardColor} padding-15 style={{ borderRadius: 8 }}>
                 {!accessToken ? (
-                    <Button 
-                        label="Sign in with Google" 
-                        onPress={signIn}
-                        backgroundColor="#4285F4"
-                        marginB-10
-                    />
+                    <GoogleSigninButton onPress={signIn}/>
                 ) : (
 
                     <View>
